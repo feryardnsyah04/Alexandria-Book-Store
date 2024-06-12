@@ -4,17 +4,76 @@
  */
 package cashier;
 
+import connection.ConnectionSQL;
+import java.awt.*;
+import java.awt.event.*;
+import java.net.URL;
+import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import javax.swing.*;
+
 /**
  *
  * @author Fery
  */
 public class CashoutQRIS extends javax.swing.JFrame {
-
+    private final ConnectionSQL dbConnection;
+    private final Transaction transaction;
+    
     /**
      * Creates new form Cashout
      */
     public CashoutQRIS() {
         initComponents();
+        
+        // Initialize database ConnectionSQL
+        dbConnection = new ConnectionSQL();
+        dbConnection.databaseConnection();
+        
+        // Initialize Transaction with dbConnection
+        transaction = new Transaction(dbConnection);
+        
+        // Set window to center of the screen
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
+        
+        // Set application icon
+        URL resource = this.getClass().getResource("/img/logo_app.png");
+        if (resource == null) {
+            System.err.println("Resource not found");
+        } else {
+            System.out.println("Resource found: " + resource.toExternalForm());
+            Image iconApp = new ImageIcon(resource).getImage();
+            this.setIconImage(iconApp);
+        }
+        
+        // Initialize date and time
+        showDateTime();
+        
+        // Select Staff
+        cashierName.setText(new ABSframe().getSelectedStaff());
+        
+        // Generate transaction number
+        transactionNumber.setText(transaction.generateTransactionNumber());
+        
+        // Add sub total
+        double subTotal = transaction.calculateSubTotal(null);
+        totalCheckout.setText(String.format(" Rp %.2f", subTotal));
+    }
+    
+    private void showDateTime() {
+        new Timer(0, (ActionEvent ae) -> {
+            Date d = new Date();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+            String date = dateFormat.format(d);
+            
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH-mm");
+            String time = timeFormat.format(d);
+            
+            String dateTime = time + " " + date;
+            timeAndDate.setText(dateTime);
+        }).start();
     }
 
     /**
@@ -37,16 +96,19 @@ public class CashoutQRIS extends javax.swing.JFrame {
         jLabel8 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
-        jLabel14 = new javax.swing.JLabel();
-        jLabel15 = new javax.swing.JLabel();
+        transactionNumber = new javax.swing.JLabel();
+        timeAndDate = new javax.swing.JLabel();
+        cashierName = new javax.swing.JLabel();
+        totalCheckout = new javax.swing.JLabel();
+        qris = new javax.swing.JLabel();
         paymentConfirmationBtn = new javax.swing.JButton();
         jLabel16 = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Pembayaran");
+        setResizable(false);
 
         jPanel1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(40, 56, 69), 2, true));
 
@@ -78,15 +140,15 @@ public class CashoutQRIS extends javax.swing.JFrame {
 
         jLabel9.setText("============================================");
 
-        jLabel11.setText("Nomor TX");
+        transactionNumber.setText("Nomor TX");
 
-        jLabel12.setText("Time & Date");
+        timeAndDate.setText("Time & Date");
 
-        jLabel13.setText("Staff Name");
+        cashierName.setText("Staff Name");
 
-        jLabel14.setText("Total");
+        totalCheckout.setText("Rp 0,00");
 
-        jLabel15.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resource/qris.jpg"))); // NOI18N
+        qris.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/qris.jpg"))); // NOI18N
 
         paymentConfirmationBtn.setBackground(new java.awt.Color(92, 184, 92));
         paymentConfirmationBtn.setFont(new java.awt.Font("Poppins", 0, 14)); // NOI18N
@@ -100,7 +162,9 @@ public class CashoutQRIS extends javax.swing.JFrame {
 
         jLabel16.setText("Metode Pembayaran");
 
-        jLabel17.setText(": QRIS");
+        jLabel17.setText("QRIS");
+
+        jLabel11.setText(":");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -132,18 +196,20 @@ public class CashoutQRIS extends javax.swing.JFrame {
                                             .addComponent(jLabel7))))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel11)
-                                    .addComponent(jLabel12)
-                                    .addComponent(jLabel13)
-                                    .addComponent(jLabel14)))
+                                    .addComponent(transactionNumber)
+                                    .addComponent(timeAndDate)
+                                    .addComponent(cashierName)
+                                    .addComponent(totalCheckout, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addComponent(jLabel9)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jLabel16)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel11)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(115, 115, 115)
-                        .addComponent(jLabel15))
+                        .addComponent(qris))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(89, 89, 89)
                         .addComponent(paymentConfirmationBtn)))
@@ -158,30 +224,31 @@ public class CashoutQRIS extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jLabel5)
-                    .addComponent(jLabel11))
+                    .addComponent(transactionNumber))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(jLabel6)
-                    .addComponent(jLabel12))
+                    .addComponent(timeAndDate))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(jLabel7)
-                    .addComponent(jLabel13))
+                    .addComponent(cashierName))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel16)
-                    .addComponent(jLabel17))
+                    .addComponent(jLabel17)
+                    .addComponent(jLabel11))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel9)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
                     .addComponent(jLabel10)
-                    .addComponent(jLabel14))
+                    .addComponent(totalCheckout))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel15)
+                .addComponent(qris)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(paymentConfirmationBtn)
                 .addGap(21, 21, 21))
@@ -203,6 +270,24 @@ public class CashoutQRIS extends javax.swing.JFrame {
 
     private void paymentConfirmationBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paymentConfirmationBtnActionPerformed
         // TODO add your handling code here:
+        try {
+            Connection con = dbConnection.getConnection();
+            String sqlDeleteCart = "DELETE FROM cart";
+            PreparedStatement pstDeleteCart = con.prepareStatement(sqlDeleteCart);
+            pstDeleteCart.executeUpdate();
+
+            pstDeleteCart.close();
+            JOptionPane.showMessageDialog(null, "Transaksi berhasil\nTerima kasih atas pembelian anda.", "Informasi", JOptionPane.INFORMATION_MESSAGE);
+        } catch (SQLException ex) {
+            System.err.println("Error deleting cart data: " + ex.getMessage());
+            JOptionPane.showMessageDialog(null, "Terjadi kesalahan saat menghapus data di keranjang", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        
+        ABSframe absFrame = new ABSframe();
+        absFrame.showCartItems();
+        absFrame.showStorageItems();
+        
+        dispose();
     }//GEN-LAST:event_paymentConfirmationBtnActionPerformed
 
     /**
@@ -244,13 +329,10 @@ public class CashoutQRIS extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel cashierName;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel2;
@@ -263,5 +345,9 @@ public class CashoutQRIS extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JButton paymentConfirmationBtn;
+    private javax.swing.JLabel qris;
+    private javax.swing.JLabel timeAndDate;
+    private javax.swing.JLabel totalCheckout;
+    private javax.swing.JLabel transactionNumber;
     // End of variables declaration//GEN-END:variables
 }

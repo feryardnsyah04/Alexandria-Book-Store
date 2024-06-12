@@ -1,0 +1,932 @@
+package warehouse;
+
+
+import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.net.URL;
+import javax.swing.ImageIcon;
+import connection.ConnectionSQL;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.time.*;
+import java.util.Date;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+ */
+
+/**
+ *
+ * @author Os 10
+ */
+public class WarehouseAlexandria extends javax.swing.JFrame {
+    private final ConnectionSQL dbConnection;
+    
+    /**
+     * Creates new form Warehouse_Alexandria
+     */
+    public WarehouseAlexandria() {
+        initComponents();
+        Greetings();
+        dbConnection = new ConnectionSQL();
+        dbConnection.databaseConnection();
+        
+        // Set window to center of the screen
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
+        
+        // Set application icon
+        URL resource = this.getClass().getResource("/img/logo_app.png");
+        if (resource == null) {
+            System.err.println("Resource not found");
+        } else {
+            System.out.println("Resource found: " + resource.toExternalForm());
+            Image iconApp = new ImageIcon(resource).getImage();
+            this.setIconImage(iconApp);
+        }
+        
+        showTime();
+        showDate();
+        
+        showStorage();
+        showStorageItems();
+    }
+    
+    private void showStorage() {
+        try {
+            Connection con = dbConnection.getConnection();
+
+            String sqlShowProduct = "SELECT code_products, product_name, category, quantity, price FROM storage_items";
+            try (PreparedStatement pst = con.prepareStatement(sqlShowProduct); ResultSet rs = pst.executeQuery()) {
+                
+                DefaultTableModel model = (DefaultTableModel) tableWarehouse.getModel();
+                model.setRowCount(0);
+                
+                while (rs.next()) {
+                    Object[] rowData = new Object[rs.getMetaData().getColumnCount()];
+                    for (int i = 1; i <= rowData.length; i++) {
+                        rowData[i - 1] = rs.getObject(i);
+                    }
+                    model.addRow(rowData);
+                }
+
+            }
+        } catch (SQLException ex) {
+            System.err.println("Error fetching data: " + ex.getMessage());
+        }
+    }
+    
+    private void showStorageItems() {
+        try {
+            Connection con = dbConnection.getConnection();
+
+            String sqlShowProduct = "SELECT code_products, product_name, category, quantity, price FROM storage_items";
+            try (PreparedStatement pst = con.prepareStatement(sqlShowProduct); ResultSet rs = pst.executeQuery()) {
+                
+                DefaultTableModel model = (DefaultTableModel) tableWarehouse1.getModel();
+                model.setRowCount(0);
+                
+                while (rs.next()) {
+                    Object[] rowData = new Object[rs.getMetaData().getColumnCount()];
+                    for (int i = 1; i <= rowData.length; i++) {
+                        rowData[i - 1] = rs.getObject(i);
+                    }
+                    model.addRow(rowData);
+                }
+
+            }
+        } catch (SQLException ex) {
+            System.err.println("Error fetching data: " + ex.getMessage());
+        }
+    }
+
+    private void Greetings() {
+        LocalTime currentTime = LocalTime.now();
+        int hour = currentTime.getHour();
+        String greeting;
+
+        if (hour >= 5 && hour < 12) {
+            greeting = "Selamat Pagi";
+        } else if (hour >= 12 && hour < 15) {
+            greeting = "Selamat Siang";
+        } else if (hour >= 15 && hour < 18) {
+            greeting = "Selamat Sore";
+        } else {
+            greeting = "Selamat Malam";
+        }
+        greetingsText.setText(greeting);
+    }
+    
+    private void showDate() {
+        Date d = new Date();
+        SimpleDateFormat s = new SimpleDateFormat("dd-MMM-yyyy");
+        String date = s.format(d);
+        dateText.setText(date);
+    }
+    
+    private void showTime() {
+        new Timer(0, (ActionEvent ae) -> {
+            Date d = new Date();
+            SimpleDateFormat s = new SimpleDateFormat("HH-mm-ss");
+            String time = s.format(d);
+            timeText.setText(time);
+        }).start();
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanel1 = new javax.swing.JPanel();
+        jpmenu = new javax.swing.JPanel();
+        closeBtn = new javax.swing.JToggleButton();
+        jstok = new javax.swing.JButton();
+        categoryBtn = new javax.swing.JButton();
+        homeBtn = new javax.swing.JButton();
+        body = new javax.swing.JLayeredPane();
+        home = new javax.swing.JPanel();
+        greetingsText = new javax.swing.JLabel();
+        timeText = new javax.swing.JLabel();
+        dateText = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        kategori = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tableWarehouse = new javax.swing.JTable();
+        jcombo = new javax.swing.JComboBox<>();
+        stok = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tableWarehouse1 = new javax.swing.JTable();
+        categoryComboBox = new javax.swing.JComboBox<>();
+        tambahBarang = new javax.swing.JLabel();
+        productNameTextField = new javax.swing.JTextField();
+        tambahBtn = new javax.swing.JButton();
+        quantityTextField = new javax.swing.JTextField();
+        namaBarang = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        deleteBtn = new javax.swing.JButton();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        codeField = new javax.swing.JTextField();
+        quantityField = new javax.swing.JTextField();
+        jLabel9 = new javax.swing.JLabel();
+        priceTextField = new javax.swing.JTextField();
+        header = new javax.swing.JLayeredPane();
+        jphome = new javax.swing.JPanel();
+        jLabel4 = new javax.swing.JLabel();
+        jpkategori = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        jpstok = new javax.swing.JPanel();
+        jLabel6 = new javax.swing.JLabel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Aplikasi Gudang - Alexandria Book Store");
+        setResizable(false);
+
+        jPanel1.setBackground(new java.awt.Color(40, 56, 69));
+
+        closeBtn.setBackground(new java.awt.Color(204, 204, 204));
+        closeBtn.setFont(new java.awt.Font("Poppins", 1, 12)); // NOI18N
+        closeBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/close.png"))); // NOI18N
+        closeBtn.setText("Close");
+        closeBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeBtnActionPerformed(evt);
+            }
+        });
+
+        jstok.setBackground(new java.awt.Color(204, 204, 204));
+        jstok.setFont(new java.awt.Font("Poppins", 1, 12)); // NOI18N
+        jstok.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/stok.png"))); // NOI18N
+        jstok.setText("Stok");
+        jstok.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jstokActionPerformed(evt);
+            }
+        });
+
+        categoryBtn.setBackground(new java.awt.Color(204, 204, 204));
+        categoryBtn.setFont(new java.awt.Font("Poppins", 1, 12)); // NOI18N
+        categoryBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/kategori.png"))); // NOI18N
+        categoryBtn.setText("Kategori");
+        categoryBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                categoryBtnActionPerformed(evt);
+            }
+        });
+
+        homeBtn.setBackground(new java.awt.Color(204, 204, 204));
+        homeBtn.setFont(new java.awt.Font("Poppins", 1, 12)); // NOI18N
+        homeBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/home.png"))); // NOI18N
+        homeBtn.setText("Home");
+        homeBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                homeBtnActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jpmenuLayout = new javax.swing.GroupLayout(jpmenu);
+        jpmenu.setLayout(jpmenuLayout);
+        jpmenuLayout.setHorizontalGroup(
+            jpmenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jpmenuLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jpmenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(closeBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jstok, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(categoryBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(homeBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        jpmenuLayout.setVerticalGroup(
+            jpmenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jpmenuLayout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addComponent(homeBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(30, 30, 30)
+                .addComponent(categoryBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(27, 27, 27)
+                .addComponent(jstok, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(closeBtn)
+                .addGap(15, 15, 15))
+        );
+
+        body.setBackground(new java.awt.Color(255, 255, 255));
+        body.setLayout(new java.awt.CardLayout());
+
+        greetingsText.setFont(new java.awt.Font("Poppins", 1, 24)); // NOI18N
+        greetingsText.setForeground(new java.awt.Color(72, 61, 55));
+        greetingsText.setText("Greetings");
+
+        timeText.setFont(new java.awt.Font("Poppins", 1, 14)); // NOI18N
+        timeText.setForeground(new java.awt.Color(72, 61, 55));
+        timeText.setText("Time");
+
+        dateText.setFont(new java.awt.Font("Poppins", 1, 14)); // NOI18N
+        dateText.setForeground(new java.awt.Color(72, 61, 55));
+        dateText.setText("Date");
+
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/background_home.png"))); // NOI18N
+
+        javax.swing.GroupLayout homeLayout = new javax.swing.GroupLayout(home);
+        home.setLayout(homeLayout);
+        homeLayout.setHorizontalGroup(
+            homeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(homeLayout.createSequentialGroup()
+                .addGroup(homeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(homeLayout.createSequentialGroup()
+                        .addGap(45, 45, 45)
+                        .addComponent(greetingsText, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(140, 140, 140)
+                        .addGroup(homeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(dateText, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(timeText, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(homeLayout.createSequentialGroup()
+                        .addGap(75, 75, 75)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 513, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 15, Short.MAX_VALUE))
+        );
+        homeLayout.setVerticalGroup(
+            homeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(homeLayout.createSequentialGroup()
+                .addGap(27, 27, 27)
+                .addGroup(homeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(homeLayout.createSequentialGroup()
+                        .addComponent(timeText)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dateText))
+                    .addComponent(greetingsText))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(17, 17, 17))
+        );
+
+        body.add(home, "card2");
+
+        jLabel2.setFont(new java.awt.Font("Poppins", 1, 18)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(40, 56, 69));
+        jLabel2.setText("PILIH KATEGORI PRODUK");
+
+        tableWarehouse.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "ID Barang", "Nama Barang", "Kategori", "Stok", "Harga"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, true, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(tableWarehouse);
+
+        jcombo.setFont(new java.awt.Font("Poppins", 0, 12)); // NOI18N
+        jcombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Novel", "Komik", "Stationery", "Buku" }));
+        jcombo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jcomboActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout kategoriLayout = new javax.swing.GroupLayout(kategori);
+        kategori.setLayout(kategoriLayout);
+        kategoriLayout.setHorizontalGroup(
+            kategoriLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(kategoriLayout.createSequentialGroup()
+                .addGroup(kategoriLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(kategoriLayout.createSequentialGroup()
+                        .addGap(218, 218, 218)
+                        .addComponent(jLabel2))
+                    .addGroup(kategoriLayout.createSequentialGroup()
+                        .addGap(279, 279, 279)
+                        .addComponent(jcombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(kategoriLayout.createSequentialGroup()
+                        .addGap(19, 19, 19)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 616, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(27, Short.MAX_VALUE))
+        );
+        kategoriLayout.setVerticalGroup(
+            kategoriLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(kategoriLayout.createSequentialGroup()
+                .addGap(25, 25, 25)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jcombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 353, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(82, Short.MAX_VALUE))
+        );
+
+        body.add(kategori, "card3");
+
+        tableWarehouse1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "ID Barang", "Nama Barang", "Kategori", "Stok", "Harga"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, true, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane2.setViewportView(tableWarehouse1);
+
+        categoryComboBox.setFont(new java.awt.Font("Poppins", 0, 12)); // NOI18N
+        categoryComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Novel", "Komik", "Stationery", "Buku" }));
+        categoryComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                categoryComboBoxActionPerformed(evt);
+            }
+        });
+
+        tambahBarang.setFont(new java.awt.Font("Poppins", 0, 14)); // NOI18N
+        tambahBarang.setText("Stok Barang :");
+
+        tambahBtn.setBackground(new java.awt.Color(2, 117, 216));
+        tambahBtn.setFont(new java.awt.Font("Poppins", 0, 12)); // NOI18N
+        tambahBtn.setForeground(new java.awt.Color(255, 255, 255));
+        tambahBtn.setText("Tambah");
+        tambahBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tambahBtnActionPerformed(evt);
+            }
+        });
+
+        namaBarang.setFont(new java.awt.Font("Poppins", 0, 14)); // NOI18N
+        namaBarang.setText("Nama Barang :");
+
+        jLabel3.setFont(new java.awt.Font("Poppins", 0, 14)); // NOI18N
+        jLabel3.setText("Kategori :");
+
+        deleteBtn.setBackground(new java.awt.Color(217, 83, 79));
+        deleteBtn.setFont(new java.awt.Font("Poppins", 0, 12)); // NOI18N
+        deleteBtn.setForeground(new java.awt.Color(255, 255, 255));
+        deleteBtn.setText("Hapus");
+        deleteBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteBtnActionPerformed(evt);
+            }
+        });
+
+        jLabel7.setFont(new java.awt.Font("Poppins", 0, 14)); // NOI18N
+        jLabel7.setText("ID Barang :");
+
+        jLabel8.setFont(new java.awt.Font("Poppins", 0, 14)); // NOI18N
+        jLabel8.setText("Stok Barang :");
+
+        jLabel9.setFont(new java.awt.Font("Poppins", 0, 14)); // NOI18N
+        jLabel9.setText("Harga Barang :");
+
+        javax.swing.GroupLayout stokLayout = new javax.swing.GroupLayout(stok);
+        stok.setLayout(stokLayout);
+        stokLayout.setHorizontalGroup(
+            stokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(stokLayout.createSequentialGroup()
+                .addGap(19, 19, 19)
+                .addGroup(stokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(stokLayout.createSequentialGroup()
+                        .addGroup(stokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(tambahBtn)
+                            .addGroup(stokLayout.createSequentialGroup()
+                                .addGroup(stokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(namaBarang)
+                                    .addComponent(tambahBarang)
+                                    .addComponent(jLabel9))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(stokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(productNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(categoryComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(quantityTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(priceTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(60, 60, 60)
+                        .addGroup(stokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(stokLayout.createSequentialGroup()
+                                .addGroup(stokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel7)
+                                    .addComponent(jLabel8))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(stokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(codeField, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(quantityField, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(deleteBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 616, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(27, Short.MAX_VALUE))
+        );
+        stokLayout.setVerticalGroup(
+            stokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(stokLayout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(stokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(stokLayout.createSequentialGroup()
+                        .addGroup(stokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(namaBarang)
+                            .addComponent(productNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(stokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(categoryComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(6, 6, 6)
+                        .addGroup(stokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(tambahBarang)
+                            .addComponent(quantityTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(stokLayout.createSequentialGroup()
+                        .addGroup(stokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel7)
+                            .addComponent(codeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(stokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel8)
+                            .addComponent(quantityField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(8, 8, 8)
+                        .addComponent(deleteBtn)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(stokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel9)
+                    .addComponent(priceTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(tambahBtn)
+                .addGap(23, 23, 23))
+        );
+
+        body.add(stok, "card3");
+
+        header.setLayout(new java.awt.CardLayout());
+
+        jLabel4.setFont(new java.awt.Font("Poppins", 1, 18)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(40, 56, 69));
+        jLabel4.setText("HOME WAREHOUSE ALEXANDRIA");
+
+        javax.swing.GroupLayout jphomeLayout = new javax.swing.GroupLayout(jphome);
+        jphome.setLayout(jphomeLayout);
+        jphomeLayout.setHorizontalGroup(
+            jphomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jphomeLayout.createSequentialGroup()
+                .addGap(250, 250, 250)
+                .addComponent(jLabel4)
+                .addContainerGap(258, Short.MAX_VALUE))
+        );
+        jphomeLayout.setVerticalGroup(
+            jphomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jphomeLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel4)
+                .addContainerGap())
+        );
+
+        header.add(jphome, "card2");
+
+        jLabel5.setFont(new java.awt.Font("Poppins", 1, 18)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(40, 56, 69));
+        jLabel5.setText("WAREHOUSE KATEGORI");
+
+        javax.swing.GroupLayout jpkategoriLayout = new javax.swing.GroupLayout(jpkategori);
+        jpkategori.setLayout(jpkategoriLayout);
+        jpkategoriLayout.setHorizontalGroup(
+            jpkategoriLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jpkategoriLayout.createSequentialGroup()
+                .addGap(289, 289, 289)
+                .addComponent(jLabel5)
+                .addContainerGap(300, Short.MAX_VALUE))
+        );
+        jpkategoriLayout.setVerticalGroup(
+            jpkategoriLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jpkategoriLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel5)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        header.add(jpkategori, "card2");
+
+        jLabel6.setFont(new java.awt.Font("Poppins", 1, 18)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(40, 56, 69));
+        jLabel6.setText("WAREHOUSE STOK");
+
+        javax.swing.GroupLayout jpstokLayout = new javax.swing.GroupLayout(jpstok);
+        jpstok.setLayout(jpstokLayout);
+        jpstokLayout.setHorizontalGroup(
+            jpstokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jpstokLayout.createSequentialGroup()
+                .addGap(299, 299, 299)
+                .addComponent(jLabel6)
+                .addContainerGap(333, Short.MAX_VALUE))
+        );
+        jpstokLayout.setVerticalGroup(
+            jpstokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jpstokLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel6)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        header.add(jpstok, "card2");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(header)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jpmenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(body, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(12, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(header, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(body)
+                    .addComponent(jpmenu, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void closeBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeBtnActionPerformed
+        // TODO add your handling code here:
+        dispose();
+    }//GEN-LAST:event_closeBtnActionPerformed
+
+    private void jstokActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jstokActionPerformed
+        // TODO add your handling code here:
+        jphome.setVisible(false);
+        jpstok.setVisible(true);       
+        jpkategori.setVisible(false);
+        
+        home.setVisible(false);
+        stok.setVisible(true);       
+        kategori.setVisible(false);
+        
+        showStorageItems();
+    }//GEN-LAST:event_jstokActionPerformed
+
+    private void categoryBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_categoryBtnActionPerformed
+        // TODO add your handling code here:
+        jphome.setVisible(false);
+        jpstok.setVisible(false);       
+        jpkategori.setVisible(true); 
+        
+        home.setVisible(false);
+        stok.setVisible(false);       
+        kategori.setVisible(true);
+        
+        showStorage();
+    }//GEN-LAST:event_categoryBtnActionPerformed
+
+    private void homeBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_homeBtnActionPerformed
+        // TODO add your handling code here:
+        jphome.setVisible(true);
+        jpkategori.setVisible(false);       
+        jpstok.setVisible(false);       
+       
+        
+        home.setVisible(true);
+        stok.setVisible(false);       
+        kategori.setVisible(false);
+    }//GEN-LAST:event_homeBtnActionPerformed
+
+    private void jcomboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcomboActionPerformed
+        // TODO add your handling code here:
+        String combo = jcombo.getSelectedItem().toString();
+    
+        try {
+            Connection con = dbConnection.getConnection();
+            String sqlShowProduct = "SELECT code_products, product_name, category, quantity, price FROM storage_items WHERE category=?";
+
+            try (PreparedStatement pst = con.prepareStatement(sqlShowProduct)) {
+                pst.setString(1, combo);
+                try (ResultSet rs = pst.executeQuery()) {
+                    DefaultTableModel model = (DefaultTableModel) tableWarehouse.getModel();
+                    model.setRowCount(0);
+
+                    while (rs.next()) {
+                        Object[] rowData = new Object[rs.getMetaData().getColumnCount()];
+                        for (int i = 1; i <= rowData.length; i++) {
+                            rowData[i - 1] = rs.getObject(i);
+                        }
+                        model.addRow(rowData);
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            System.err.println("Error fetching data: " + ex.getMessage());
+        }
+    }//GEN-LAST:event_jcomboActionPerformed
+
+    private void categoryComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_categoryComboBoxActionPerformed
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_categoryComboBoxActionPerformed
+
+    private void tambahBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tambahBtnActionPerformed
+        // TODO add your handling code here:
+        String productName = productNameTextField.getText();
+    String category = categoryComboBox.getSelectedItem().toString();
+    int quantity = Integer.parseInt(quantityTextField.getText());
+    double price = Double.parseDouble(priceTextField.getText());
+
+    String categoryCode = switch (category) {
+        case "Komik" -> "KO";
+        case "Novel" -> "NO";
+        case "Stationery" -> "ST";
+        case "Buku" -> "BU";
+        default -> "XX";
+    };
+
+    String nameCode = productName.replaceAll("[^a-zA-Z]", "").substring(0, 3).toUpperCase();
+    int nameLength = productName.length();
+    String productCode = categoryCode + nameCode + nameLength;
+
+    ConnectionSQL connectionSQL = new ConnectionSQL();
+    connectionSQL.databaseConnection();
+    Connection conn = null;
+    PreparedStatement pstmtCheck = null;
+    PreparedStatement pstmtUpdate = null;
+    PreparedStatement pstmtInsert = null;
+    ResultSet rs = null;
+
+    try {
+        conn = connectionSQL.getConnection();
+        
+        // Check if the product already exists
+        String sqlCheck = "SELECT quantity FROM storage_items WHERE code_products = ?";
+        pstmtCheck = conn.prepareStatement(sqlCheck);
+        pstmtCheck.setString(1, productCode);
+        rs = pstmtCheck.executeQuery();
+
+        if (rs.next()) {
+            // Product exists, update the existing record
+            int existingQuantity = rs.getInt("quantity");
+            String sqlUpdate = "UPDATE storage_items SET product_name = ?, category = ?, quantity = ?, price = ? WHERE code_products = ?";
+            pstmtUpdate = conn.prepareStatement(sqlUpdate);
+            pstmtUpdate.setString(1, productName);
+            pstmtUpdate.setString(2, category);
+            pstmtUpdate.setInt(3, existingQuantity + quantity); // Update quantity
+            pstmtUpdate.setDouble(4, price);
+            pstmtUpdate.setString(5, productCode);
+            pstmtUpdate.executeUpdate();
+        } else {
+            // Product does not exist, insert a new record
+            String sqlInsert = "INSERT INTO storage_items (code_products, product_name, category, quantity, price) VALUES (?, ?, ?, ?, ?)";
+            pstmtInsert = conn.prepareStatement(sqlInsert);
+            pstmtInsert.setString(1, productCode);
+            pstmtInsert.setString(2, productName);
+            pstmtInsert.setString(3, category);
+            pstmtInsert.setInt(4, quantity);
+            pstmtInsert.setDouble(5, price);
+            pstmtInsert.executeUpdate();
+        }
+
+        JOptionPane.showMessageDialog(this, "Barang berhasil ditambahkan atau diperbarui!");
+
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Terjadi kesalahan data: " + e.getMessage());
+    } finally {
+        try {
+            if (rs != null) rs.close();
+            if (pstmtCheck != null) pstmtCheck.close();
+            if (pstmtUpdate != null) pstmtUpdate.close();
+            if (pstmtInsert != null) pstmtInsert.close();
+            if (conn != null) conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    showStorageItems();
+    }//GEN-LAST:event_tambahBtnActionPerformed
+
+    private void deleteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteBtnActionPerformed
+        // TODO add your handling code here:
+        String idProduct = codeField.getText();
+        int quantityProduct;
+
+        try {
+            quantityProduct = Integer.parseInt(quantityField.getText());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Jumlah tidak valid", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (idProduct.isEmpty() || quantityProduct <= 0) {
+            JOptionPane.showMessageDialog(this, "ID Barang dan Jumlah harus diisi dengan benar", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            Connection con = dbConnection.getConnection();
+            String sqlUpdateStorage = "UPDATE storage_items SET quantity = quantity - ? WHERE code_products = ?";
+            PreparedStatement pstUpdateStorage = con.prepareStatement(sqlUpdateStorage);
+            pstUpdateStorage.setInt(1, quantityProduct);
+            pstUpdateStorage.setString(2, idProduct);
+            int rowsAffected = pstUpdateStorage.executeUpdate();
+            pstUpdateStorage.close();
+
+            if (rowsAffected > 0) {
+                String sqlCheckQuantity = "SELECT quantity FROM storage_items WHERE code_products = ?";
+                PreparedStatement pstCheckQuantity = con.prepareStatement(sqlCheckQuantity);
+                pstCheckQuantity.setString(1, idProduct);
+                ResultSet rs = pstCheckQuantity.executeQuery();
+                if (rs.next()) {
+                    int currentQuantity = rs.getInt("quantity");
+                    if (currentQuantity <= 0) {
+                        String sqlDeleteProduct = "DELETE FROM storage_items WHERE code_products = ?";
+                        PreparedStatement pstDeleteProduct = con.prepareStatement(sqlDeleteProduct);
+                        pstDeleteProduct.setString(1, idProduct);
+                        pstDeleteProduct.executeUpdate();
+                        pstDeleteProduct.close();
+                    }
+                }
+                rs.close();
+                pstCheckQuantity.close();
+
+                DefaultTableModel model = (DefaultTableModel) tableWarehouse1.getModel();
+                for (int i = 0; i < model.getRowCount(); i++) {
+                    if (model.getValueAt(i, 0).equals(idProduct)) {
+                        int tableQuantity = Integer.parseInt(model.getValueAt(i, 3).toString());
+                        int newQuantity = tableQuantity - quantityProduct;
+                        if (newQuantity <= 0) {
+                            model.removeRow(i);
+                        } else {
+                            model.setValueAt(newQuantity, i, 3);
+                        }
+                        break;
+                    }
+                }
+                JOptionPane.showMessageDialog(this, "Barang berhasil dihapus dari gudang", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Barang tidak ditemukan di gudang", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (HeadlessException | SQLException ex) {
+            System.err.println("Error deleting data: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat menghapus barang", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        showStorageItems();
+    }//GEN-LAST:event_deleteBtnActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(WarehouseAlexandria.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(WarehouseAlexandria.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(WarehouseAlexandria.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(WarehouseAlexandria.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new WarehouseAlexandria().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLayeredPane body;
+    private javax.swing.JButton categoryBtn;
+    private javax.swing.JComboBox<String> categoryComboBox;
+    private javax.swing.JToggleButton closeBtn;
+    private javax.swing.JTextField codeField;
+    private javax.swing.JLabel dateText;
+    private javax.swing.JButton deleteBtn;
+    private javax.swing.JLabel greetingsText;
+    private javax.swing.JLayeredPane header;
+    private javax.swing.JPanel home;
+    private javax.swing.JButton homeBtn;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JComboBox<String> jcombo;
+    private javax.swing.JPanel jphome;
+    private javax.swing.JPanel jpkategori;
+    private javax.swing.JPanel jpmenu;
+    private javax.swing.JPanel jpstok;
+    private javax.swing.JButton jstok;
+    private javax.swing.JPanel kategori;
+    private javax.swing.JLabel namaBarang;
+    private javax.swing.JTextField priceTextField;
+    private javax.swing.JTextField productNameTextField;
+    private javax.swing.JTextField quantityField;
+    private javax.swing.JTextField quantityTextField;
+    private javax.swing.JPanel stok;
+    private javax.swing.JTable tableWarehouse;
+    private javax.swing.JTable tableWarehouse1;
+    private javax.swing.JLabel tambahBarang;
+    private javax.swing.JButton tambahBtn;
+    private javax.swing.JLabel timeText;
+    // End of variables declaration//GEN-END:variables
+}

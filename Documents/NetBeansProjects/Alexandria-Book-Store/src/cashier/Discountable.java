@@ -8,12 +8,6 @@ package cashier;
  *
  * @author Fery
  */
-public class Calculator {
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        // TODO code application logic here
-    }
+public interface Discountable {
+    double applyVoucherDiscount(String codeVoucher);
 }
