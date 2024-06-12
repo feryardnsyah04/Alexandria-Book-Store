@@ -745,7 +745,6 @@ public class ABSframe extends javax.swing.JFrame {
 
         try {
             Connection con = dbConnection.getConnection();
-
             String sqlCheckProduct = "SELECT code_products, product_name, category, quantity, price FROM storage_items WHERE code_products = ?";
             PreparedStatement pstCheckProduct = con.prepareStatement(sqlCheckProduct);
             pstCheckProduct.setString(1, idProduct);
@@ -767,23 +766,49 @@ public class ABSframe extends javax.swing.JFrame {
             }
 
             DefaultTableModel model = (DefaultTableModel) tableCart.getModel();
-            Object[] rowData = new Object[]{
-                rsProduct.getString("code_products"),
-                rsProduct.getString("product_name"),
-                rsProduct.getString("category"),
-                quantityProduct,
-                rsProduct.getDouble("price") * quantityProduct
-            };
-            model.addRow(rowData);
+            boolean productExistsInCart = false;
 
-            String sqlAddToCart = "INSERT INTO cart (code_products, product_name, category, quantity, price) VALUES (?, ?, ?, ?, ?)";
-            PreparedStatement pstAddToCart = con.prepareStatement(sqlAddToCart);
-            pstAddToCart.setString(1, rsProduct.getString("code_products"));
-            pstAddToCart.setString(2, rsProduct.getString("product_name"));
-            pstAddToCart.setString(3, rsProduct.getString("category"));
-            pstAddToCart.setInt(4, quantityProduct);
-            pstAddToCart.setDouble(5, rsProduct.getDouble("price") * quantityProduct);
-            pstAddToCart.executeUpdate();
+            for (int i = 0; i < model.getRowCount(); i++) {
+                if (model.getValueAt(i, 0).equals(idProduct)) {
+                    int currentQuantity = (int) model.getValueAt(i, 3);
+                    int newQuantity = currentQuantity + quantityProduct;
+                    double pricePerUnit = rsProduct.getDouble("price");
+                    model.setValueAt(newQuantity, i, 3);
+                    model.setValueAt(pricePerUnit * newQuantity, i, 4);
+
+                    String sqlUpdateCart = "UPDATE cart SET quantity = ?, price = ? WHERE code_products = ?";
+                    PreparedStatement pstUpdateCart = con.prepareStatement(sqlUpdateCart);
+                    pstUpdateCart.setInt(1, newQuantity);
+                    pstUpdateCart.setDouble(2, pricePerUnit * newQuantity);
+                    pstUpdateCart.setString(3, idProduct);
+                    pstUpdateCart.executeUpdate();
+                    pstUpdateCart.close();
+
+                    productExistsInCart = true;
+                    break;
+                }
+            }
+            
+            if (!productExistsInCart) {
+                Object[] rowData = new Object[]{
+                    rsProduct.getString("code_products"),
+                    rsProduct.getString("product_name"),
+                    rsProduct.getString("category"),
+                    quantityProduct,
+                    rsProduct.getDouble("price") * quantityProduct
+                };
+                model.addRow(rowData);
+
+                String sqlAddToCart = "INSERT INTO cart (code_products, product_name, category, quantity, price) VALUES (?, ?, ?, ?, ?)";
+                PreparedStatement pstAddToCart = con.prepareStatement(sqlAddToCart);
+                pstAddToCart.setString(1, rsProduct.getString("code_products"));
+                pstAddToCart.setString(2, rsProduct.getString("product_name"));
+                pstAddToCart.setString(3, rsProduct.getString("category"));
+                pstAddToCart.setInt(4, quantityProduct);
+                pstAddToCart.setDouble(5, rsProduct.getDouble("price") * quantityProduct);
+                pstAddToCart.executeUpdate();
+                pstAddToCart.close();
+            }
 
             String sqlUpdateQuantity = "UPDATE storage_items SET quantity = ? WHERE code_products = ?";
             PreparedStatement pstUpdateQuantity = con.prepareStatement(sqlUpdateQuantity);
@@ -793,7 +818,6 @@ public class ABSframe extends javax.swing.JFrame {
 
             rsProduct.close();
             pstCheckProduct.close();
-            pstAddToCart.close();
             pstUpdateQuantity.close();
 
             JOptionPane.showMessageDialog(this, "Barang berhasil ditambahkan ke keranjang", "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -808,7 +832,7 @@ public class ABSframe extends javax.swing.JFrame {
 
         String codeVoucher = discountVoucher.getText();
         double subTotalPrice;
-        
+
         if (codeVoucher == null || codeVoucher.trim().isEmpty()) {
             subTotalPrice = totalPrice;
         } else {
@@ -822,73 +846,111 @@ public class ABSframe extends javax.swing.JFrame {
 
     private void deleteProductBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteProductBtnActionPerformed
         // TODO add your handling code here:
-       String idProduct = idProductField.getText();
-       int quantityProduct;
+        String idProduct = idProductField.getText();
+        int quantityProduct;
 
-       try {
-           quantityProduct = Integer.parseInt(quantityProductField.getText());
-       } catch (NumberFormatException e) {
-           JOptionPane.showMessageDialog(this, "Jumlah tidak valid", "Error", JOptionPane.ERROR_MESSAGE);
-           return;
-       }
+        try {
+            quantityProduct = Integer.parseInt(quantityProductField.getText());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Jumlah tidak valid", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-       if (idProduct.isEmpty() || quantityProduct <= 0) {
-           JOptionPane.showMessageDialog(this, "ID Barang dan Jumlah harus diisi dengan benar", "Error", JOptionPane.ERROR_MESSAGE);
-           return;
-       }
+        if (idProduct.isEmpty() || quantityProduct <= 0) {
+            JOptionPane.showMessageDialog(this, "ID Barang dan Jumlah harus diisi dengan benar", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-       try {
-           Connection con = dbConnection.getConnection();
+        try {
+            Connection con = dbConnection.getConnection();
+            String sqlCheckQuantity = "SELECT quantity, price FROM cart WHERE code_products = ?";
+            PreparedStatement pstCheckQuantity = con.prepareStatement(sqlCheckQuantity);
+            pstCheckQuantity.setString(1, idProduct);
+            ResultSet rs = pstCheckQuantity.executeQuery();
 
-           String sqlDeleteProduct = "DELETE FROM cart WHERE code_products = ? AND quantity = ?";
-           PreparedStatement pstDeleteProduct = con.prepareStatement(sqlDeleteProduct);
-           pstDeleteProduct.setString(1, idProduct);
-           pstDeleteProduct.setInt(2, quantityProduct);
-           int rowsAffected = pstDeleteProduct.executeUpdate();
+            if (rs.next()) {
+                int currentQuantity = rs.getInt("quantity");
+                double price = rs.getDouble("price");
 
-           if (rowsAffected > 0) {
-               DefaultTableModel model = (DefaultTableModel) tableCart.getModel();
-               for (int i = 0; i < model.getRowCount(); i++) {
-                   if (model.getValueAt(i, 0).equals(idProduct) && model.getValueAt(i, 3).equals(quantityProduct)) {
-                       model.removeRow(i);
-                       break;
-                   }
-               }
+                if (currentQuantity >= quantityProduct) {
+                    if (currentQuantity == quantityProduct) {
+                        String sqlDeleteProduct = "DELETE FROM cart WHERE code_products = ?";
+                        PreparedStatement pstDeleteProduct = con.prepareStatement(sqlDeleteProduct);
+                        pstDeleteProduct.setString(1, idProduct);
+                        pstDeleteProduct.executeUpdate();
+                        pstDeleteProduct.close();
+                    } else {
+                        String sqlUpdateCart = "UPDATE cart SET quantity = quantity - ?, price = ? WHERE code_products = ?";
+                        PreparedStatement pstUpdateCart = con.prepareStatement(sqlUpdateCart);
+                        pstUpdateCart.setInt(1, quantityProduct);
+                        double newPrice = price * ((double) currentQuantity - quantityProduct) / currentQuantity;
+                        pstUpdateCart.setDouble(2, newPrice);
+                        pstUpdateCart.setString(3, idProduct);
+                        pstUpdateCart.executeUpdate();
+                        pstUpdateCart.close();
+                    }
 
-               String sqlUpdateStorage = "UPDATE storage_items SET quantity = quantity + ? WHERE code_products = ?";
-               PreparedStatement pstUpdateStorage = con.prepareStatement(sqlUpdateStorage);
-               pstUpdateStorage.setInt(1, quantityProduct);
-               pstUpdateStorage.setString(2, idProduct);
-               pstUpdateStorage.executeUpdate();
+                    DefaultTableModel model = (DefaultTableModel) tableCart.getModel();
+                    for (int i = 0; i < model.getRowCount(); i++) {
+                        if (model.getValueAt(i, 0).equals(idProduct)) {
+                            int updatedQuantity = (int) model.getValueAt(i, 3) - quantityProduct;
+                            if (updatedQuantity > 0) {
+                                model.setValueAt(updatedQuantity, i, 3);
+                                String sqlGetPrice = "SELECT price FROM cart WHERE code_products = ?";
+                                try (PreparedStatement pstGetPrice = con.prepareStatement(sqlGetPrice)) {
+                                    pstGetPrice.setString(1, idProduct);
+                                    ResultSet rsGetPrice = pstGetPrice.executeQuery();
+                                    if (rsGetPrice.next()) {
+                                        double updatedPrice = rsGetPrice.getDouble("price");
+                                        model.setValueAt(updatedPrice, i, 4);
+                                    }   
+                                } catch (SQLException ex) {
+                                    System.err.println("Error fetching price from database: " + ex.getMessage());
+                                    // Handle error jika perlu
+                                }
+                            } else {
+                                model.removeRow(i);
+                            }
+                            break;
+                        }
+                    }
+                    String sqlUpdateStorage = "UPDATE storage_items SET quantity = quantity + ? WHERE code_products = ?";
+                    PreparedStatement pstUpdateStorage = con.prepareStatement(sqlUpdateStorage);
+                    pstUpdateStorage.setInt(1, quantityProduct);
+                    pstUpdateStorage.setString(2, idProduct);
+                    pstUpdateStorage.executeUpdate();
+                    pstUpdateStorage.close();
 
-               pstUpdateStorage.close();
-               pstDeleteProduct.close();
+                    JOptionPane.showMessageDialog(this, "Barang berhasil dihapus dari keranjang", "Success", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Jumlah yang ingin dihapus melebihi jumlah di keranjang", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Barang tidak ditemukan di keranjang", "Error", JOptionPane.ERROR_MESSAGE);
+            }
 
-               JOptionPane.showMessageDialog(this, "Barang berhasil dihapus dari keranjang", "Success", JOptionPane.INFORMATION_MESSAGE);
-           } else {
-               JOptionPane.showMessageDialog(this, "Barang tidak ditemukan di keranjang", "Error", JOptionPane.ERROR_MESSAGE);
-           }
+            rs.close();
+            pstCheckQuantity.close();
 
-       } catch (HeadlessException | SQLException ex) {
-           System.err.println("Error deleting data: " + ex.getMessage());
-           JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat menghapus barang", "Error", JOptionPane.ERROR_MESSAGE);
-       }
-       
-       showStorageItems();
+        } catch (SQLException ex) {
+            System.err.println("Error deleting data: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat menghapus barang", "Error", JOptionPane.ERROR_MESSAGE);
+        }
 
-       double totalPrice = transaction.calculateTotalPrice();
-       totalPriceProduct.setText(String.format("Rp %.2f", totalPrice));
-
-       String codeVoucher = discountVoucher.getText();
-       double subTotalPrice;
+        showStorageItems(); 
         
-       if (codeVoucher == null || codeVoucher.trim().isEmpty()) {
-           subTotalPrice = totalPrice;
-       } else {
-           subTotalPrice = transaction.calculateSubTotal(codeVoucher);
-       }
+        double totalPrice = transaction.calculateTotalPrice();
+        totalPriceProduct.setText(String.format("Rp %.2f", totalPrice));
 
-       subtotalPriceProduct.setText(String.format("Rp %.2f", subTotalPrice));
+        String codeVoucher = discountVoucher.getText();
+        double subTotalPrice;
+
+        if (codeVoucher == null || codeVoucher.trim().isEmpty()) {
+            subTotalPrice = totalPrice;
+        } else {
+            subTotalPrice = transaction.calculateSubTotal(codeVoucher);
+        }
+        subtotalPriceProduct.setText(String.format("Rp %.2f", subTotalPrice));
     }//GEN-LAST:event_deleteProductBtnActionPerformed
 
     private void discountVoucherActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_discountVoucherActionPerformed
