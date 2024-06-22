@@ -20,6 +20,7 @@ import javax.swing.*;
 public class CashoutQRIS extends javax.swing.JFrame {
     private final ConnectionSQL dbConnection;
     private final Transaction transaction;
+    private String codeVoucher;
     
     /**
      * Creates new form Cashout
@@ -57,8 +58,25 @@ public class CashoutQRIS extends javax.swing.JFrame {
         // Generate transaction number
         transactionNumber.setText(transaction.generateTransactionNumber());
         
+        // Mengambil kode promo yang digunakan di database
+        String sqlGetVoucherCode = "SELECT code_voucher FROM cart ORDER BY id DESC LIMIT 1";
+        codeVoucher = "";
+
+        // Membuat koneksi ke database
+        Connection con = dbConnection.getConnection();
+
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sqlGetVoucherCode)) {
+
+            if (rs.next()) {
+                codeVoucher = rs.getString("code_voucher");
+            }
+        } catch (SQLException e) {
+            System.err.println("Gagal mendapatkan kode promo: " + e.getMessage());
+        }
+        
         // Add sub total
-        double subTotal = transaction.calculateSubTotal(null);
+        double subTotal = transaction.calculateSubTotal(codeVoucher);
         totalCheckout.setText(String.format(" Rp %.2f", subTotal));
     }
     
@@ -134,7 +152,7 @@ public class CashoutQRIS extends javax.swing.JFrame {
         jLabel7.setText(":");
 
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel8.setText("Sub Total");
+        jLabel8.setText("Total");
 
         jLabel10.setText(":");
 
@@ -182,8 +200,8 @@ public class CashoutQRIS extends javax.swing.JFrame {
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addGroup(jPanel1Layout.createSequentialGroup()
                                         .addComponent(jLabel8)
-                                        .addGap(66, 66, 66)
-                                        .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jLabel10))
                                     .addGroup(jPanel1Layout.createSequentialGroup()
                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                             .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -282,7 +300,7 @@ public class CashoutQRIS extends javax.swing.JFrame {
             System.err.println("Error deleting cart data: " + ex.getMessage());
             JOptionPane.showMessageDialog(null, "Terjadi kesalahan saat menghapus data di keranjang", "Error", JOptionPane.ERROR_MESSAGE);
         }
-        
+
         ABSframe absFrame = new ABSframe();
         absFrame.showCartItems();
         absFrame.showStorageItems();

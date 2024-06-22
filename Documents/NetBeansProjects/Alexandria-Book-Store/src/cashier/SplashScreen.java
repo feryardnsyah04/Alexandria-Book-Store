@@ -34,7 +34,7 @@ public class SplashScreen extends javax.swing.JFrame {
         }
         
         String displayText = "<html>"
-                + "<p>BookStore Cashier adalah aplikasi yang</p>"
+                + "<p>Cashier Alexandra adalah aplikasi yang</p>"
                 + "<p>dirancang khusus untuk memudahkan</p>"
                 + "<p>transaksi di toko Alexandria Book Store.</p>"
                 + "<p>Dengan antarmuka yang intuitif, aplikasi</p>"

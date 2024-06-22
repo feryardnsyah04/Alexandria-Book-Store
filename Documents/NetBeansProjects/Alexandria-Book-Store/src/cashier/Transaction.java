@@ -6,8 +6,11 @@ package cashier;
 
 import connection.ConnectionSQL;
 import java.awt.HeadlessException;
+import java.io.*;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import javax.swing.*;
+import java.util.Date;
 
 /**
  *
@@ -126,5 +129,5 @@ public class Transaction extends GetTXNumber implements Discountable {
         double finalPrice = totalPrice - discountAmount;
 
         return finalPrice;
-    }    
+    }
 }

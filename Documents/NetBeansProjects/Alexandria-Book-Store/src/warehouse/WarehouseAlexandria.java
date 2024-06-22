@@ -62,7 +62,7 @@ public class WarehouseAlexandria extends javax.swing.JFrame {
         try {
             Connection con = dbConnection.getConnection();
 
-            String sqlShowProduct = "SELECT code_products, product_name, category, quantity, price FROM storage_items";
+                String sqlShowProduct = "SELECT code_products, product_name, category, quantity, price FROM storage_items";
             try (PreparedStatement pst = con.prepareStatement(sqlShowProduct); ResultSet rs = pst.executeQuery()) {
                 
                 DefaultTableModel model = (DefaultTableModel) tableWarehouse.getModel();

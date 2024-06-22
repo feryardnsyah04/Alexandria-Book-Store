@@ -23,6 +23,7 @@ import warehouse.WarehouseLoading;
 public class ABSframe extends javax.swing.JFrame {
     private final ConnectionSQL dbConnection;
     private final Transaction transaction;
+    private String codeVoucher;
 
     /**
      * Creates new form ABSframe
@@ -65,7 +66,7 @@ public class ABSframe extends javax.swing.JFrame {
         double totalPrice = transaction.calculateTotalPrice();
         totalPriceProduct.setText(String.format("Rp %.2f", totalPrice));
 
-        String codeVoucher = discountVoucher.getText();
+        codeVoucher = discountVoucher.getText();
         double subTotalPrice;
         
         if (codeVoucher == null || codeVoucher.trim().isEmpty()) {
@@ -265,7 +266,7 @@ public class ABSframe extends javax.swing.JFrame {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(22, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 704, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -348,7 +349,7 @@ public class ABSframe extends javax.swing.JFrame {
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(warehouseBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(cashierList, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(61, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -390,7 +391,7 @@ public class ABSframe extends javax.swing.JFrame {
         jScrollPane2.setViewportView(tableCart);
 
         jLabel13.setFont(new java.awt.Font("Poppins", 0, 12)); // NOI18N
-        jLabel13.setText("Total :");
+        jLabel13.setText("Sub Total :");
 
         jLabel14.setFont(new java.awt.Font("Poppins", 0, 12)); // NOI18N
         jLabel14.setText("Diskon :");
@@ -403,7 +404,7 @@ public class ABSframe extends javax.swing.JFrame {
 
         jLabel17.setFont(new java.awt.Font("Poppins", 0, 12)); // NOI18N
         jLabel17.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel17.setText("Sub Total :");
+        jLabel17.setText("Total :");
 
         subtotalPriceProduct.setFont(new java.awt.Font("Poppins", 0, 12)); // NOI18N
         subtotalPriceProduct.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
@@ -447,9 +448,9 @@ public class ABSframe extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel17)
+                    .addComponent(jLabel14)
                     .addComponent(jLabel13)
-                    .addComponent(jLabel14))
+                    .addComponent(jLabel17))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(totalPriceProduct, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
@@ -639,7 +640,7 @@ public class ABSframe extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -712,17 +713,34 @@ public class ABSframe extends javax.swing.JFrame {
     private void cashoutButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cashoutButtonActionPerformed
         // TODO add your handling code here:
         try {
-            if (cashMethod.isSelected()) {
-                CashoutCash cash = new CashoutCash();
-                cash.setVisible(true);
-            } else if (qrisMethod.isSelected()) {
-                CashoutQRIS qris = new CashoutQRIS();
-                qris.setVisible(true);
+            DefaultTableModel model = (DefaultTableModel) tableCart.getModel();
+            if (model.getRowCount() > 0) {
+                if (cashMethod.isSelected()) {
+                    CashoutCash cash = new CashoutCash();
+                    cash.setVisible(true);
+                } else if (qrisMethod.isSelected()) {
+                    CashoutQRIS qris = new CashoutQRIS();
+                    qris.setVisible(true);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Pilih salah satu metode pembayaran!", "Warning", JOptionPane.WARNING_MESSAGE);
+                }
             } else {
-                JOptionPane.showMessageDialog(null, "Pilih salah satu metode pembayaran!", "Warning", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Keranjang masih kosong.\nMasukkan barang ke keranjang terlebih dahulu!", "Information", JOptionPane.INFORMATION_MESSAGE);
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (HeadlessException ex) {
+            System.err.println("Error accessing table model: " + ex.getMessage());
+            JOptionPane.showMessageDialog(null, "Terjadi kesalahan saat mengakses data keranjang", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        
+        codeVoucher = discountVoucher.getText();
+        String sqlInsertVoucher = "UPDATE cart SET code_voucher = ? ORDER BY id DESC LIMIT 1";
+
+        Connection con = dbConnection.getConnection();
+        try (PreparedStatement pstmt = con.prepareStatement(sqlInsertVoucher)) {
+            pstmt.setString(1, codeVoucher);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Gagal menyimpan kode promo: " + e.getMessage());
         }
     }//GEN-LAST:event_cashoutButtonActionPerformed
 
@@ -830,7 +848,7 @@ public class ABSframe extends javax.swing.JFrame {
         double totalPrice = transaction.calculateTotalPrice();
         totalPriceProduct.setText(String.format("Rp %.2f", totalPrice));
 
-        String codeVoucher = discountVoucher.getText();
+        codeVoucher = discountVoucher.getText();
         double subTotalPrice;
 
         if (codeVoucher == null || codeVoucher.trim().isEmpty()) {
@@ -955,7 +973,7 @@ public class ABSframe extends javax.swing.JFrame {
 
     private void discountVoucherActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_discountVoucherActionPerformed
         // TODO add your handling code here:
-        String codeVoucher = discountVoucher.getText().trim();
+        codeVoucher = discountVoucher.getText().trim();
 
         double discountPercentage = transaction.getVoucherDiscount(codeVoucher);
         discountRate.setText(String.format("%d%%", (int) discountPercentage));

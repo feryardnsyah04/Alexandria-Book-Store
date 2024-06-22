@@ -20,6 +20,7 @@ import java.sql.*;
 public class CashoutCash extends javax.swing.JFrame {
     private final ConnectionSQL dbConnection;
     private final Transaction transaction;
+    private String codeVoucher;
 
     /**
      * Creates new form Cashout
@@ -57,8 +58,25 @@ public class CashoutCash extends javax.swing.JFrame {
         // Generate transaction number
         transactionNumber.setText(transaction.generateTransactionNumber());
         
+        // Mengambil kode promo yang digunakan di database
+        String sqlGetVoucherCode = "SELECT code_voucher FROM cart ORDER BY id DESC LIMIT 1";
+        codeVoucher = "";
+
+        // Membuat koneksi ke database
+        Connection con = dbConnection.getConnection();
+
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sqlGetVoucherCode)) {
+
+            if (rs.next()) {
+                codeVoucher = rs.getString("code_voucher");
+            }
+        } catch (SQLException e) {
+            System.err.println("Gagal mendapatkan kode promo: " + e.getMessage());
+        }
+        
         // Add sub total
-        double subTotal = transaction.calculateSubTotal(null);
+        double subTotal = transaction.calculateSubTotal(codeVoucher);
         totalCheckout.setText(String.format(" Rp %.2f", subTotal));
     }
     
@@ -75,8 +93,6 @@ public class CashoutCash extends javax.swing.JFrame {
             timeAndDate.setText(dateTime);
         }).start();
     }
-    
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -142,7 +158,7 @@ public class CashoutCash extends javax.swing.JFrame {
         jLabel7.setText(":");
 
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel8.setText("Sub Total");
+        jLabel8.setText("Total");
 
         jLabel10.setText(":");
 
@@ -215,14 +231,6 @@ public class CashoutCash extends javax.swing.JFrame {
                                         .addGap(28, 28, 28)
                                         .addComponent(jLabel22, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jLabel18)
-                                        .addGap(86, 86, 86)
-                                        .addComponent(jLabel19, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jLabel8)
-                                        .addGap(66, 66, 66)
-                                        .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                             .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                             .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -231,7 +239,15 @@ public class CashoutCash extends javax.swing.JFrame {
                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(jLabel5)
                                             .addComponent(jLabel6)
-                                            .addComponent(jLabel7))))
+                                            .addComponent(jLabel7)))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel18)
+                                            .addComponent(jLabel8))
+                                        .addGap(86, 86, 86)
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(jLabel19, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(cashoutField)
@@ -343,8 +359,25 @@ public class CashoutCash extends javax.swing.JFrame {
 
     private void cashoutFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cashoutFieldActionPerformed
         // TODO add your handling code here:
+        // Mengambil kode promo yang digunakan di database
+        String sqlGetVoucherCode = "SELECT code_voucher FROM cart ORDER BY id DESC LIMIT 1";
+        codeVoucher = "";
+
+        // Membuat koneksi ke database
+        Connection con = dbConnection.getConnection();
+
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sqlGetVoucherCode)) {
+
+            if (rs.next()) {
+                codeVoucher = rs.getString("code_voucher");
+            }
+        } catch (SQLException e) {
+            System.err.println("Gagal mendapatkan kode promo: " + e.getMessage());
+        }
+        
         // Mendapatkan subtotal
-        double subTotal = transaction.calculateSubTotal(null);
+        double subTotal = transaction.calculateSubTotal(codeVoucher);
 
         // Mengambil input pengguna dari field cashout
         String inputCashout = cashoutField.getText();
