@@ -58,22 +58,7 @@ public class CashoutCash extends javax.swing.JFrame {
         // Generate transaction number
         transactionNumber.setText(transaction.generateTransactionNumber());
         
-        // Mengambil kode promo yang digunakan di database
-        String sqlGetVoucherCode = "SELECT code_voucher FROM cart ORDER BY id DESC LIMIT 1";
-        codeVoucher = "";
-
-        // Membuat koneksi ke database
-        Connection con = dbConnection.getConnection();
-
-        try (Statement stmt = con.createStatement();
-             ResultSet rs = stmt.executeQuery(sqlGetVoucherCode)) {
-
-            if (rs.next()) {
-                codeVoucher = rs.getString("code_voucher");
-            }
-        } catch (SQLException e) {
-            System.err.println("Gagal mendapatkan kode promo: " + e.getMessage());
-        }
+        fetchVoucherCode();
         
         // Add sub total
         double subTotal = transaction.calculateSubTotal(codeVoucher);
@@ -92,6 +77,25 @@ public class CashoutCash extends javax.swing.JFrame {
             String dateTime = time + " " + date;
             timeAndDate.setText(dateTime);
         }).start();
+    }
+    
+    private void fetchVoucherCode() {
+        // Mengambil kode promo yang digunakan di database
+        String sqlGetVoucherCode = "SELECT code_voucher FROM cart ORDER BY id DESC LIMIT 1";
+        codeVoucher = "";
+
+        // Membuat koneksi ke database
+        Connection con = dbConnection.getConnection();
+
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sqlGetVoucherCode)) {
+
+            if (rs.next()) {
+                codeVoucher = rs.getString("code_voucher");
+            }
+        } catch (SQLException e) {
+            System.err.println("Gagal mendapatkan kode promo: " + e.getMessage());
+        }
     }
 
     /**
@@ -342,8 +346,12 @@ public class CashoutCash extends javax.swing.JFrame {
             String sqlDeleteCart = "DELETE FROM cart";
             PreparedStatement pstDeleteCart = con.prepareStatement(sqlDeleteCart);
             pstDeleteCart.executeUpdate();
-
             pstDeleteCart.close();
+            
+            String sqlResetAutoIncrement = "ALTER TABLE cart AUTO_INCREMENT = 1";
+            PreparedStatement pstResetAutoIncrement = con.prepareStatement(sqlResetAutoIncrement);
+            pstResetAutoIncrement.executeUpdate();
+            pstResetAutoIncrement.close();
             JOptionPane.showMessageDialog(null, "Transaksi berhasil\nTerima kasih atas pembelian anda.", "Informasi", JOptionPane.INFORMATION_MESSAGE);
         } catch (SQLException ex) {
             System.err.println("Error deleting cart data: " + ex.getMessage());

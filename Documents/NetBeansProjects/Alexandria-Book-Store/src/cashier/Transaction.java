@@ -49,33 +49,39 @@ public class Transaction extends GetTXNumber implements Discountable {
         return discountPercentage;
     }
 
-    public double getVoucherDiscount(String codeVoucher) {
-        double discountPercentage = 0.0;
+    public String findVoucherCode() {
+        String fetchedCodeVoucher = null;
+        String sqlFetchVoucher = "SELECT code_voucher FROM cart ORDER BY id DESC LIMIT 1";
 
         try {
             Connection con = dbConnection.getConnection();
-            String sqlFetchDiscount = "SELECT discount FROM voucher WHERE code_voucher = ?";
-            PreparedStatement pstFetchDiscount = con.prepareStatement(sqlFetchDiscount);
-            pstFetchDiscount.setString(1, codeVoucher);
-            ResultSet rsDiscount = pstFetchDiscount.executeQuery();
+            PreparedStatement pstFetchVoucher = con.prepareStatement(sqlFetchVoucher);
+            ResultSet rsVoucher = pstFetchVoucher.executeQuery();
 
-            if (rsDiscount.next()) {
-                discountPercentage = rsDiscount.getDouble("discount");
-            } else {
-                JOptionPane.showMessageDialog(null, "Voucher tidak ditemukan", "Error", JOptionPane.ERROR_MESSAGE);
+            if (rsVoucher.next()) {
+                fetchedCodeVoucher = rsVoucher.getString("code_voucher");
             }
 
-            rsDiscount.close();
-            pstFetchDiscount.close();
-        } catch (HeadlessException | SQLException ex) {
-            System.err.println("Error fetching voucher discount: " + ex.getMessage());
-            JOptionPane.showMessageDialog(null, "Terjadi kesalahan saat mengambil diskon voucher", "Error", JOptionPane.ERROR_MESSAGE);
+            rsVoucher.close();
+            pstFetchVoucher.close();
+        } catch (SQLException e) {
+            System.err.println("Error fetching voucher code from cart: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Terjadi kesalahan saat mencari kode promo", "Error", JOptionPane.ERROR_MESSAGE);
         }
 
-        return discountPercentage;
+        return fetchedCodeVoucher;
     }
 
-
+    public String extractNumbers(String str) {
+        StringBuilder numberBuilder = new StringBuilder();
+        for (char c : str.toCharArray()) {
+            if (Character.isDigit(c)) {
+                numberBuilder.append(c);
+            }
+        }
+        return numberBuilder.length() > 0 ? numberBuilder.toString() : null;
+    }
+    
     public double calculateTotalPrice() {
         double totalPrice = 0.0;
 

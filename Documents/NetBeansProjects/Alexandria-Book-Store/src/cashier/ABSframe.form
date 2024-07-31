@@ -406,9 +406,9 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="totalPriceProduct" pref="126" max="32767" attributes="0"/>
+                          <Component id="subtotalPriceProduct" pref="126" max="32767" attributes="0"/>
                           <Component id="discountRate" alignment="0" max="32767" attributes="0"/>
-                          <Component id="subtotalPriceProduct" alignment="0" max="32767" attributes="0"/>
+                          <Component id="totalPriceProduct" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" pref="40" max="-2" attributes="0"/>
                   </Group>
@@ -427,7 +427,7 @@
                       <Component id="jScrollPane2" min="-2" pref="168" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="totalPriceProduct" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="subtotalPriceProduct" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel13" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -438,7 +438,7 @@
                       <EmptySpace max="32767" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jLabel17" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="subtotalPriceProduct" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="totalPriceProduct" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -530,7 +530,7 @@
                 <Property name="text" type="java.lang.String" value="Diskon :"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JLabel" name="totalPriceProduct">
+            <Component class="javax.swing.JLabel" name="subtotalPriceProduct">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Poppins" size="12" style="0"/>
@@ -555,7 +555,7 @@
                 <Property name="text" type="java.lang.String" value="Total :"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JLabel" name="subtotalPriceProduct">
+            <Component class="javax.swing.JLabel" name="totalPriceProduct">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Poppins" size="12" style="0"/>

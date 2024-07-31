@@ -64,9 +64,9 @@ public class ABSframe extends javax.swing.JFrame {
         showCartItems();
         
         double totalPrice = transaction.calculateTotalPrice();
-        totalPriceProduct.setText(String.format("Rp %.2f", totalPrice));
+        subtotalPriceProduct.setText(String.format("Rp %.2f", totalPrice));
 
-        codeVoucher = discountVoucher.getText();
+        codeVoucher = transaction.findVoucherCode();
         double subTotalPrice;
         
         if (codeVoucher == null || codeVoucher.trim().isEmpty()) {
@@ -74,8 +74,8 @@ public class ABSframe extends javax.swing.JFrame {
         } else {
             subTotalPrice = transaction.calculateSubTotal(codeVoucher);
         }
-
-        subtotalPriceProduct.setText(String.format("Rp %.2f", subTotalPrice));
+        totalPriceProduct.setText(String.format("Rp %.2f", subTotalPrice));
+        checkDiscountRate();
     }
     
     private void setShiftBasedOnCurrentTime() {
@@ -93,7 +93,6 @@ public class ABSframe extends javax.swing.JFrame {
         String selectedStaff = (String) cashierList.getSelectedItem();
         return selectedStaff;
     }
-
     
     private void showDate() {
         Date d = new Date();
@@ -159,6 +158,34 @@ public class ABSframe extends javax.swing.JFrame {
         }    
     }
     
+    private void checkDiscountRate() {
+        Connection con = dbConnection.getConnection();
+        String sqlCheckCart = "SELECT COUNT(*) AS rowcount FROM cart";
+
+        try (PreparedStatement pstCheckCart = con.prepareStatement(sqlCheckCart)) {
+            ResultSet rs = pstCheckCart.executeQuery();
+
+            if (rs.next()) {
+                int rowCount = rs.getInt("rowcount");
+
+                if (rowCount > 0) {
+                    String showVoucher = transaction.extractNumbers(codeVoucher);
+                    if (showVoucher != null) {
+                        discountRate.setText(String.format("%s%%", showVoucher));
+                    } else {
+                        discountRate.setText("0");
+                    }
+                } else {
+                    discountRate.setText("0");
+                }
+            }
+            rs.close();
+        } catch (SQLException e) {
+            System.err.println("Error checking cart contents: " + e.getMessage());
+            discountRate.setText("0");
+        }
+    }    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -190,10 +217,10 @@ public class ABSframe extends javax.swing.JFrame {
         tableCart = new javax.swing.JTable();
         jLabel13 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
-        totalPriceProduct = new javax.swing.JLabel();
+        subtotalPriceProduct = new javax.swing.JLabel();
         discountRate = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
-        subtotalPriceProduct = new javax.swing.JLabel();
+        totalPriceProduct = new javax.swing.JLabel();
         deleteCartBtn = new javax.swing.JButton();
         refreshCartBtn = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
@@ -396,8 +423,8 @@ public class ABSframe extends javax.swing.JFrame {
         jLabel14.setFont(new java.awt.Font("Poppins", 0, 12)); // NOI18N
         jLabel14.setText("Diskon :");
 
-        totalPriceProduct.setFont(new java.awt.Font("Poppins", 0, 12)); // NOI18N
-        totalPriceProduct.setText("Rp 0,00");
+        subtotalPriceProduct.setFont(new java.awt.Font("Poppins", 0, 12)); // NOI18N
+        subtotalPriceProduct.setText("Rp 0,00");
 
         discountRate.setFont(new java.awt.Font("Poppins", 0, 12)); // NOI18N
         discountRate.setText("0");
@@ -406,9 +433,9 @@ public class ABSframe extends javax.swing.JFrame {
         jLabel17.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel17.setText("Total :");
 
-        subtotalPriceProduct.setFont(new java.awt.Font("Poppins", 0, 12)); // NOI18N
-        subtotalPriceProduct.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        subtotalPriceProduct.setText("Rp 0,00");
+        totalPriceProduct.setFont(new java.awt.Font("Poppins", 0, 12)); // NOI18N
+        totalPriceProduct.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        totalPriceProduct.setText("Rp 0,00");
 
         deleteCartBtn.setBackground(new java.awt.Color(217, 83, 79));
         deleteCartBtn.setFont(new java.awt.Font("Poppins", 0, 14)); // NOI18N
@@ -453,9 +480,9 @@ public class ABSframe extends javax.swing.JFrame {
                     .addComponent(jLabel17))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(totalPriceProduct, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
+                    .addComponent(subtotalPriceProduct, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
                     .addComponent(discountRate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(subtotalPriceProduct, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(totalPriceProduct, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(40, 40, 40))
         );
         jPanel4Layout.setVerticalGroup(
@@ -470,7 +497,7 @@ public class ABSframe extends javax.swing.JFrame {
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(totalPriceProduct)
+                    .addComponent(subtotalPriceProduct)
                     .addComponent(jLabel13))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -479,7 +506,7 @@ public class ABSframe extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel17)
-                    .addComponent(subtotalPriceProduct))
+                    .addComponent(totalPriceProduct))
                 .addContainerGap())
         );
 
@@ -731,17 +758,6 @@ public class ABSframe extends javax.swing.JFrame {
             System.err.println("Error accessing table model: " + ex.getMessage());
             JOptionPane.showMessageDialog(null, "Terjadi kesalahan saat mengakses data keranjang", "Error", JOptionPane.ERROR_MESSAGE);
         }
-        
-        codeVoucher = discountVoucher.getText();
-        String sqlInsertVoucher = "UPDATE cart SET code_voucher = ? ORDER BY id DESC LIMIT 1";
-
-        Connection con = dbConnection.getConnection();
-        try (PreparedStatement pstmt = con.prepareStatement(sqlInsertVoucher)) {
-            pstmt.setString(1, codeVoucher);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            System.err.println("Gagal menyimpan kode promo: " + e.getMessage());
-        }
     }//GEN-LAST:event_cashoutButtonActionPerformed
 
     private void addProductBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addProductBtnActionPerformed
@@ -846,7 +862,7 @@ public class ABSframe extends javax.swing.JFrame {
         }
 
         double totalPrice = transaction.calculateTotalPrice();
-        totalPriceProduct.setText(String.format("Rp %.2f", totalPrice));
+        subtotalPriceProduct.setText(String.format("Rp %.2f", totalPrice));
 
         codeVoucher = discountVoucher.getText();
         double subTotalPrice;
@@ -857,7 +873,7 @@ public class ABSframe extends javax.swing.JFrame {
             subTotalPrice = transaction.calculateSubTotal(codeVoucher);
         }
 
-        subtotalPriceProduct.setText(String.format("Rp %.2f", subTotalPrice));
+        totalPriceProduct.setText(String.format("Rp %.2f", subTotalPrice));
 
         showStorageItems();
     }//GEN-LAST:event_addProductBtnActionPerformed
@@ -958,9 +974,9 @@ public class ABSframe extends javax.swing.JFrame {
         showStorageItems(); 
         
         double totalPrice = transaction.calculateTotalPrice();
-        totalPriceProduct.setText(String.format("Rp %.2f", totalPrice));
+        subtotalPriceProduct.setText(String.format("Rp %.2f", totalPrice));
 
-        String codeVoucher = discountVoucher.getText();
+        codeVoucher = discountVoucher.getText();
         double subTotalPrice;
 
         if (codeVoucher == null || codeVoucher.trim().isEmpty()) {
@@ -968,19 +984,57 @@ public class ABSframe extends javax.swing.JFrame {
         } else {
             subTotalPrice = transaction.calculateSubTotal(codeVoucher);
         }
-        subtotalPriceProduct.setText(String.format("Rp %.2f", subTotalPrice));
+        totalPriceProduct.setText(String.format("Rp %.2f", subTotalPrice));
     }//GEN-LAST:event_deleteProductBtnActionPerformed
 
     private void discountVoucherActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_discountVoucherActionPerformed
         // TODO add your handling code here:
         codeVoucher = discountVoucher.getText().trim();
 
-        double discountPercentage = transaction.getVoucherDiscount(codeVoucher);
-        discountRate.setText(String.format("%d%%", (int) discountPercentage));
+        if (!codeVoucher.isEmpty()) {
+            double discountPercentage = transaction.applyVoucherDiscount(codeVoucher);
+            discountRate.setText(String.format("%d%%", (int) discountPercentage));
 
-        double finalPrice = transaction.calculateSubTotal(codeVoucher);
+            double finalPrice = transaction.calculateSubTotal(codeVoucher);
+            totalPriceProduct.setText(String.format("Rp %.2f", finalPrice));
 
-        subtotalPriceProduct.setText(String.format("Rp %.2f", finalPrice));
+            String sqlInsertVoucher = "UPDATE cart SET code_voucher = ? ORDER BY id DESC LIMIT 1";
+            Connection con = dbConnection.getConnection();
+
+            try (PreparedStatement pstmt = con.prepareStatement(sqlInsertVoucher)) {
+                pstmt.setString(1, codeVoucher);
+                pstmt.executeUpdate();
+                System.out.println("Kode voucher berhasil disimpan");
+            } catch (SQLException e) {
+                System.err.println("Gagal menyimpan kode promo: " + e.getMessage());
+            }        
+        } else {
+            String sqlCheckVoucher = "SELECT code_voucher FROM cart ORDER BY id DESC LIMIT 1";
+            Connection con = dbConnection.getConnection();
+
+            try (PreparedStatement pstmtCheck = con.prepareStatement(sqlCheckVoucher)) {
+                ResultSet rs = pstmtCheck.executeQuery();
+                if (rs.next() && rs.getString("code_voucher") != null) {
+                    discountRate.setText("0%");
+                    double finalPrice = transaction.calculateSubTotal(null);
+                    totalPriceProduct.setText(String.format("Rp %.2f", finalPrice));
+
+                    String sqlDeleteVoucher = "UPDATE cart SET code_voucher = NULL ORDER BY id DESC LIMIT 1";
+
+                    try (PreparedStatement pstmtDelete = con.prepareStatement(sqlDeleteVoucher)) {
+                        pstmtDelete.executeUpdate();
+                        System.out.println("Kode voucher berhasil dihapus");
+                    } catch (SQLException e) {
+                        System.err.println("Gagal menghapus kode promo: " + e.getMessage());
+                    }
+                } else {
+                    System.err.println("Tidak ada kode voucher untuk dihapus");
+                }
+                rs.close();
+            } catch (SQLException e) {
+                System.err.println("Gagal memeriksa kode promo: " + e.getMessage());
+            }
+        }        
     }//GEN-LAST:event_discountVoucherActionPerformed
 
     private void deleteCartBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteCartBtnActionPerformed
@@ -1011,7 +1065,12 @@ public class ABSframe extends javax.swing.JFrame {
             PreparedStatement pstDeleteCart = con.prepareStatement(sqlDeleteCart);
             pstDeleteCart.executeUpdate();
             pstDeleteCart.close();
-
+            
+            String sqlResetAutoIncrement = "ALTER TABLE cart AUTO_INCREMENT = 1";
+            PreparedStatement pstResetAutoIncrement = con.prepareStatement(sqlResetAutoIncrement);
+            pstResetAutoIncrement.executeUpdate();
+            pstResetAutoIncrement.close();
+            
             DefaultTableModel model = (DefaultTableModel) tableCart.getModel();
             model.setRowCount(0);
 
@@ -1026,14 +1085,22 @@ public class ABSframe extends javax.swing.JFrame {
         
         // update sub total & total price
         double totalPrice = transaction.calculateTotalPrice();
-        totalPriceProduct.setText(String.format(" Rp %.2f", totalPrice));
+        subtotalPriceProduct.setText(String.format(" Rp %.2f", totalPrice));
         double subTotalPrice = transaction.calculateSubTotal(null);
-        subtotalPriceProduct.setText(String.format(" Rp %.2f", subTotalPrice));
+        totalPriceProduct.setText(String.format(" Rp %.2f", subTotalPrice));
+        discountRate.setText("0");
     }//GEN-LAST:event_deleteCartBtnActionPerformed
 
     private void refreshCartBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshCartBtnActionPerformed
         // TODO add your handling code here:
+        // Update cart items
         showCartItems();
+        // Update sub total & total price
+        double totalPrice = transaction.calculateTotalPrice();
+        subtotalPriceProduct.setText(String.format(" Rp %.2f", totalPrice));
+        double subTotalPrice = transaction.calculateSubTotal(null);
+        totalPriceProduct.setText(String.format(" Rp %.2f", subTotalPrice));
+        discountRate.setText("0");
     }//GEN-LAST:event_refreshCartBtnActionPerformed
 
     private void warehouseBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_warehouseBtnActionPerformed
